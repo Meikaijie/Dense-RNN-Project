@@ -83,7 +83,7 @@ def plot(loss_list, predictions_series, batchX, batchY):
 
 
 with tf.Session() as sess:
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
     plt.ion()
     plt.figure()
     plt.show()
