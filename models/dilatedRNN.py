@@ -165,20 +165,15 @@ def drnn_classification(x,
     # define dRNN structures
     with tf.variable_scope('forward'):
         layer_outputs = multi_dRNN_with_dilations(cells, x_reformat, dilations)
-    x_reformat.reverse()
-    with tf.variable_scope('backward'):
-        layer_outputs_backwards = multi_dRNN_with_dilations(cells2, x_reformat, dilations)
-    layer_outputs_backwards.reverse()
-    final_outputs = [tf.concat([layer_outputs[i], layer_outputs_backwards[i]], 1) for i in range(n_steps)]
 
     if dilations[0] == 1:
         # dilation starts at 1, no data dependency lost
         # define the output layer
-        weights = tf.Variable(tf.random_normal(shape=[hidden_structs[-1] * 2,
+        weights = tf.Variable(tf.random_normal(shape=[hidden_structs[-1],
                                                       n_classes]))
         bias = tf.Variable(tf.random_normal(shape=[n_classes]))
         # define prediction
-        preds = [tf.matmul(state, weights) + bias for state in final_outputs]
+        preds = [tf.matmul(state, weights) + bias for state in layer_outputs]
 
     return preds
 

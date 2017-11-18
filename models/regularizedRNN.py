@@ -210,7 +210,7 @@ labels_series = tf.unstack(batchY_placeholder, axis=1)
 
 x_input = tf.expand_dims(batchX_placeholder, 2)
 
-logits_series = drnn_classification(x_input, [state_size] * layers, dilations[0:layers], truncated_backprop_length, num_classes, 1)
+logits_series = drnn_classification(x_input, [state_size] * layers, dilations[0:layers], truncated_backprop_length, num_classes)
 predictions_series = [tf.nn.softmax(logits) for logits in logits_series]
 
 losses = [tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels) for logits, labels in zip(logits_series,labels_series)]
