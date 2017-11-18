@@ -251,5 +251,3 @@ with tf.Session() as sess:
 
 plt.ioff()
 plt.show()
-
-train_step = tf.train.AdagradOptimizer(0.3).minimize(total_loss)
