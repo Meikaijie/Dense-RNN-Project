@@ -56,22 +56,26 @@ def GetLabels(directory_path, windowsize, windowstep, t, dictionary=None):
 								print("Invalid path or file organization")
 								return
 
-							labels = np.zeros((features.shape[0],len(dictionary)))
+							# labels = np.zeros((features.shape[0],len(dictionary)))
+							labels = np.zeros((features.shape[0]))
 							f = open(os.path.join(directory_path,DR,data_folder,labelfile))
 							windowstart = 0
 							labelIndex = 0
-							label = [0]*len(dictionary)
+							# label = [0]*len(dictionary)
+							label = 0
 							for line in f:
 								info = line.split()
 								start = float(info[0])/16000
 								end = float(info[1])/16000
 								phoneme = info[2]
 								while windowstart + windowsize <= end + 0.5*windowsize and labelIndex<len(labels):
-									label[dictionary.index(phoneme)] = 1
+									# label[dictionary.index(phoneme)] = 1
+									label = dictionary.index(phoneme)
 									labels[labelIndex] = label
 									windowstart += windowstep
 									labelIndex += 1
-									label[dictionary.index(phoneme)] = 0
+									# label[dictionary.index(phoneme)] = 0
+									label = 0
 							# print(labels[50])
 
 							if directory_path.endswith('TRAIN'):
