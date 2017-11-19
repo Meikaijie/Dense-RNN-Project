@@ -181,13 +181,13 @@ def drnn_classification(x,
 num_epochs = 100
 total_series_length = 50000 * 100
 truncated_backprop_length = 16
-state_size = 4
+state_size = 256
 num_classes = 61
 layers = 3
 echo_step = 3
 batch_size = 1
 num_examples = 4620
-num_batches = num_examples//batch_size//truncated_backprop_length
+num_batches = num_examples #//batch_size//truncated_backprop_length
 dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
 def generateData():
@@ -228,6 +228,7 @@ with tf.Session() as sess:
         print("New data, epoch", epoch_idx)
 
         file_pos = 0
+        print(num_batches)
         for batch_idx in range(num_batches):
             # start_idx = batch_idx * truncated_backprop_length
             # end_idx = start_idx + truncated_backprop_length
