@@ -1,0 +1,3 @@
+from dilatedRNN import drnn_classification
+from bidirectionalDilatedRNN import bdrnn_classification
+from regularizedRNN import reg_rnn_classification
