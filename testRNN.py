@@ -4,6 +4,10 @@ import tensorflow as tf
 import numpy as np
 from models._all import *
 
+# when using reg_rnn_classification, layers should equal 1, also I think we should make truncated_backprop_length at least twice the size of the longest
+# dilation we are using or longest regularizer. Also we should have the option of only training losses on predictions where we have info for all skip connections.
+# To do this in the regularizedRNN file I just took the last half of the logits and labels and trained on those, but still predicted everything.
+
 # PARAMETERS
 num_epochs = 100
 total_series_length = 50000 * 100
