@@ -41,7 +41,6 @@ def reg_rnn_classification(x,
         pred -- the prediction logits at the last timestamp and the last layer of the RNN.
                 'pred' does not pass any output activation functions.
     """
-    global batch_size
     # error checking
     assert (len(hidden_structs) == len(dilations))
 
@@ -69,7 +68,7 @@ def reg_rnn_classification(x,
                 if i-j >= 0:
                     to_concat.append(layer_outputs[i-j])
                 else:
-                    to_concat.append(np.zeros((batch_size, hidden_structs[-1])))
+                    to_concat.append(tf.matmul(to_concat[-1], tf.constant(0.0, shape=[hidden_structs[-1], hidden_structs[-1]])))
             preds.append(tf.matmul(tf.concat(to_concat, 1), weights) + bias)
 
     return preds
