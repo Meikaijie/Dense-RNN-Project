@@ -4,24 +4,23 @@ import tensorflow as tf
 import numpy as np
 from models._all import *
 
-# CONSTANTS
-num_features = 123
-dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
-num_examples = 4620
-num_classes = 61
-
 # PARAMETERS
 num_epochs = 100
 total_series_length = 50000 * 100
 truncated_backprop_length = 32
 state_size = 256
-layers = 1
-echo_step = 3
+layers = 4
 batch_size = 1
-num_batches = num_examples #//batch_size//truncated_backprop_length
 regularizers = [2, 4, 8]
 cell_type = 'RNN'
-classifier = reg_rnn_classification
+classifier = bdrnn_classification
+num_features = 123
+real_dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+non_dilations = [1] * layers
+dilations = non_dilations
+num_examples = 4620
+num_batches = num_examples #//batch_size//truncated_backprop_length
+num_classes = 61
 
 batchX_placeholder = \
     tf.placeholder(tf.float32, [None, truncated_backprop_length, num_features])

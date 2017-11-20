@@ -82,8 +82,8 @@ def multi_dRNN_with_dilations(cells, inputs, dilations):
     """
     assert (len(cells) == len(dilations))
     x = copy.copy(inputs)
-    for cell, dilation in zip(cells, dilations):
-        scope_name = "multi_dRNN_dilation_%d" % dilation
+    for i, (cell, dilation) in enumerate(zip(cells, dilations)):
+        scope_name = "multi_dRNN_dilation_{}_{}".format(dilation, i)
         x = dRNN(cell, x, dilation, scope=scope_name)
     return x
 
