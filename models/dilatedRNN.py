@@ -3,7 +3,7 @@ import tensorflow as tf
 import copy
 import itertools
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from . import _rnn_reformat, _contruct_cells, dRNN, multi_dRNN_with_dilations
 
 
