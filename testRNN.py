@@ -11,13 +11,13 @@ from models._all import *
 # PARAMETERS
 num_epochs = 100
 total_series_length = 50000 * 100
-truncated_backprop_length = 32
-state_size = 256
-layers = 4
+truncated_backprop_length = 64
+state_size = 128
+layers = 1
 batch_size = 1
 regularizers = [2, 4, 8]
 cell_type = 'RNN'
-classifier = bdrnn_classification
+classifier = bireg_rnn_classification
 num_features = 123
 real_dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 non_dilations = [1] * layers
