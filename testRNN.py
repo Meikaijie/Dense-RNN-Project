@@ -4,20 +4,24 @@ import tensorflow as tf
 import numpy as np
 from models._all import *
 
+# when using reg_rnn_classification, layers should equal 1, also I think we should make truncated_backprop_length at least twice the size of the longest
+# dilation we are using or longest regularizer. Also we should have the option of only training losses on predictions where we have info for all skip connections.
+# To do this in the regularizedRNN file I just took the last half of the logits and labels and trained on those, but still predicted everything.
+
 # PARAMETERS
 num_epochs = 100
 total_series_length = 50000 * 100
-truncated_backprop_length = 32
-state_size = 256
-layers = 4
+truncated_backprop_length = 64
+state_size = 128
+layers = 1
 batch_size = 1
 regularizers = [2, 4, 8]
 cell_type = 'RNN'
-classifier = drnn_classification
+classifier = bireg_rnn_classification
 num_features = 123
 real_dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 non_dilations = [1] * layers
-dilations = real_dilations
+dilations = non_dilations
 num_examples = 4620
 num_batches = num_examples #//batch_size//truncated_backprop_length
 num_classes = 61

@@ -1,0 +1,4 @@
+*.pyc
+feature_labels/
+feature_files/
+
