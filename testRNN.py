@@ -65,6 +65,8 @@ def test(validation=True):
   test_label_files = \
     all_test_label_files[:int(total_samples/2)] if validation \
     else all_test_label_files[int(total_samples/2):]
+  total_correct = 0
+  total_phonemes = 0
   for sample_idx in range(len(test_feature_files)):
 
       example = np.load(os.path.join('feature_files/TEST',
@@ -90,14 +92,19 @@ def test(validation=True):
           })
 
       preds = np.array(_predictions_series).T
-      accuracy = np.sum(preds == batchY)/float(preds.size)
+      num_correct = np.sum(preds == batchY)
+      total_correct += num_correct
+      total_phonemes += preds.size
+      accuracy = num_correct/float(preds.size)
       if sample_idx % 100 == 0:
         print("Testing, Step: {}, Accuracy: {}"
               .format(sample_idx, accuracy))
+  return total_correct/float(total_phonemes)
 
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
     loss_list = []
+    validation_accuracy_list = []
 
     for epoch_idx in range(num_epochs):
         print("Starting epoch", epoch_idx)
@@ -137,4 +144,7 @@ with tf.Session() as sess:
             if sample_idx % 100 == 0:
                 print("Epoch {}, Step: {}, Loss: {}, Accuracy: {}"
                       .format(epoch_idx, sample_idx, _total_loss, accuracy))
-                test()
+        validation_accuracy = test(validation=True)
+        print("Epoch {} finished, validation accuracy: {}"
+              .format(epoch_idx, validation_accuracy))
+        validation_accuracy_list.append(validation_accuracy)
