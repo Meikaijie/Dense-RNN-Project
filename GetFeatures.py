@@ -19,10 +19,9 @@ if __name__ == "__main__":
 							(rate,sig) = wav.read(os.path.join(directory_path,DR,data_folder,wavfile))
 							mfcc_feat = psf.mfcc(sig,rate,numcep=41,nfilt=41, appendEnergy=True)
 							dmfcc_feat = psf.base.delta(mfcc_feat,2)
-							ddmfcc_feat = psf.base.delta(mfcc_feat,2)
+							ddmfcc_feat = psf.base.delta(dmfcc_feat,2)
 							mfcc_feat = np.append(mfcc_feat,dmfcc_feat,axis=1)
 							mfcc_feat = np.append(mfcc_feat,ddmfcc_feat,axis=1)
-							print(mfcc_feat.shape)
 							featurefile = DR+'_'+data_folder+'_'+wavfile[:-4]
 							if directory_path.endswith('TRAIN'):
 								featurefile = 'TRAIN_'+featurefile
