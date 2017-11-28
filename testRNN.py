@@ -13,12 +13,14 @@ import time
 # PARAMETERS
 num_states = int(sys.argv[1])                # state_size
 num_layers = int(sys.argv[2])                # layers
-reg_steps = int(sys.argv[3])                 # length of regularizer array
-reg_step_size = int(sys.argv[4])             # multiplier for regularizer array (reg_step_size^i)
-dil_steps = int(sys.argv[5])                 # length of dilations array
-dil_step_size = int(sys.argv[6])             # multiplier for dilations array (dil_step_size^i)
-epochs = int(sys.argv[7])                    #num_epochs
-classifier_string = sys.argv[8]
+step_size = int(sys.argv[3])
+# reg_steps = int(sys.argv[3])                 # length of regularizer array
+# reg_step_size = int(sys.argv[4])             # multiplier for regularizer array (reg_step_size^i)
+# dil_steps = int(sys.argv[5])                 # length of dilations array
+# dil_step_size = int(sys.argv[6])             # multiplier for dilations array (dil_step_size^i)
+epochs = int(sys.argv[4])                    #num_epochs
+cell = sys.argv[5]
+classifier_string = sys.argv[6]
 
 
 classifier_dict = {'bireg_rnn_classification':bireg_rnn_classification,
@@ -31,13 +33,13 @@ classifier_dict = {'bireg_rnn_classification':bireg_rnn_classification,
 num_epochs = epochs #100                #** make this user input
 state_size = num_states #128            #** make this user input
 layers = num_layers #1                  #** make this user input, but follow rules above
-if classifier_string != 'bdrnn_classification' or classifier_string != 'drnn_classification':
-  layers = 1
-regularizers = [reg_step_size**i for i in range(1,reg_steps+1)]  #** make this user input
-cell_type = 'RNN'
+# if classifier_string != 'bdrnn_classification' or classifier_string != 'drnn_classification':
+#   layers = 1
+regularizers = [step_size**i for i in range(1,num_layers+1)]     #** make this user input
+cell_type = cell                                                 #** make this user input
 classifier = classifier_dict[classifier_string]                  #** make this user input
 num_features = 123
-real_dilations = [dil_step_size**i for i in range(dil_steps)]    #** make this user input
+real_dilations = [step_size**i for i in range(num_layers)]    #** make this user input
 truncated_backprop_length = 1          #** make this twice the max dilation/regularizer
 if classifier_string == 'bireg_rnn_classification' or classifier_string == 'reg_rnn_classification':
   truncated_backprop_length = 2*regularizers[-1]
