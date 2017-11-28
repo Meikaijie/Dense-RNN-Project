@@ -42,6 +42,8 @@ def bireg_rnn_classification(x,
                 'pred' does not pass any output activation functions.
     """
     # error checking
+    hidden_structs = [hidden_structs[-1]]
+    dilations = [1]
     assert (len(hidden_structs) == len(dilations))
 
     # reshape inputs
