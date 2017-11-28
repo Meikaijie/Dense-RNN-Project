@@ -91,6 +91,7 @@ def test(validation=True):
     else all_test_label_files[int(total_samples/2):]
   total_correct = 0
   total_phonemes = 0
+  cumulative_loss = 0
   for sample_idx in range(len(test_feature_files)):
 
       example = np.load(os.path.join('feature_files/TEST',
@@ -109,68 +110,97 @@ def test(validation=True):
       batchX = np.array(batchX)
       batchY = np.array(batchY)
 
-      _predictions_series = sess.run(
-          [predictions_series],
+      _loss, _predictions_series = sess.run(
+          [total_loss, predictions_series],
           feed_dict={
               batchX_placeholder:batchX,
+              batchY_placeholder:batchY
           })
 
+      cumulative_loss += _loss
       preds = np.array(_predictions_series).T
       num_correct = np.sum(preds == batchY)
       total_correct += num_correct
       total_phonemes += preds.size
       accuracy = num_correct/float(preds.size)
       if sample_idx % 100 == 0:
-        print("Testing, Step: {}, Accuracy: {}"
-              .format(sample_idx, accuracy))
-  return total_correct/float(total_phonemes)
+        print("Testing, Step: {}, Loss: {}, Accuracy: {}"
+              .format(sample_idx, _loss, accuracy))
+  return cumulative_loss, total_correct/float(total_phonemes)
+
+def train_epoch(train_model=True):
+  train_feature_files = os.listdir('feature_files/TRAIN')
+  train_label_files = os.listdir('feature_labels/TRAIN')
+  total_samples = len(train_feature_files)
+  total_correct = 0
+  total_phonemes = 0
+  cumulative_loss = 0
+  for sample_idx in range(total_samples):
+
+      example = np.load(os.path.join('feature_files/TRAIN',
+                                     train_feature_files[sample_idx]))
+      label = np.load(os.path.join('feature_labels/TRAIN',
+                                   train_label_files[sample_idx]))
+
+      stop_index = len(example) - len(example) % truncated_backprop_length
+
+      batchX = [[] for _ in range(len(example)//truncated_backprop_length)]
+      batchY = [[] for _ in range(len(example)//truncated_backprop_length)]
+
+      for batch_pos in range(stop_index):
+          batchX[batch_pos//truncated_backprop_length].append(example[batch_pos])
+          batchY[batch_pos//truncated_backprop_length].append(label[batch_pos])
+      batchX = np.array(batchX)
+      batchY = np.array(batchY)
+
+      if train_model:
+        _loss, _train_step, _predictions_series = sess.run(
+            [total_loss, train_step, predictions_series],
+            feed_dict={
+                batchX_placeholder:batchX,
+                batchY_placeholder:batchY,
+            }
+        )
+      else:
+        _loss, _predictions_series = sess.run(
+            [total_loss, predictions_series],
+            feed_dict={
+                batchX_placeholder:batchX,
+                batchY_placeholder:batchY,
+            }
+        )
+
+      cumulative_loss += _loss
+      preds = np.array(_predictions_series).T
+      num_correct = np.sum(preds == batchY)
+      total_correct += num_correct
+      total_phonemes += preds.size
+      accuracy = num_correct/float(preds.size)
+
+      if sample_idx % 100 == 0:
+          print("Step: {}, Loss: {}, Accuracy: {}"
+                .format(sample_idx, _loss, accuracy))
+  return cumulative_loss, total_correct/float(total_phonemes)
 
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
-    loss_list = []
+    training_loss_list = []
+    training_accuracy_list = []
+    validation_loss_list = []
     validation_accuracy_list = []
 
     for epoch_idx in range(num_epochs):
         print("Starting epoch", epoch_idx)
-
-        train_feature_files = os.listdir('feature_files/TRAIN')
-        train_label_files = os.listdir('feature_labels/TRAIN')
-        total_samples = len(train_feature_files)
-        for sample_idx in range(total_samples):
-
-            example = np.load(os.path.join('feature_files/TRAIN',
-                                           train_feature_files[sample_idx]))
-            label = np.load(os.path.join('feature_labels/TRAIN',
-                                         train_label_files[sample_idx]))
-
-            stop_index = len(example) - len(example) % truncated_backprop_length
-
-            batchX = [[] for _ in range(len(example)//truncated_backprop_length)]
-            batchY = [[] for _ in range(len(example)//truncated_backprop_length)]
-
-            for batch_pos in range(stop_index):
-                batchX[batch_pos//truncated_backprop_length].append(example[batch_pos])
-                batchY[batch_pos//truncated_backprop_length].append(label[batch_pos])
-            batchX = np.array(batchX)
-            batchY = np.array(batchY)
-
-            _total_loss, _train_step, _predictions_series = sess.run(
-                [total_loss, train_step, predictions_series],
-                feed_dict={
-                    batchX_placeholder:batchX,
-                    batchY_placeholder:batchY,
-                })
-
-            preds = np.array(_predictions_series).T
-            accuracy = np.sum(preds == batchY)/float(preds.size)
-            loss_list.append(_total_loss)
-
-            if sample_idx % 100 == 0:
-                print("Epoch {}, Step: {}, Loss: {}, Accuracy: {}"
-                      .format(epoch_idx, sample_idx, _total_loss, accuracy))
-        validation_accuracy = test(validation=True)
-        print("Epoch {} finished, validation accuracy: {}"
-              .format(epoch_idx, validation_accuracy))
+        train_epoch(train_model=True)
+        training_loss, training_accuracy = train_epoch(train_model=False)
+        print("Epoch {} finished, training loss: {}, training accuracy: {}"
+              .format(epoch_idx, training_loss, training_accuracy))
+        training_loss_list.append(training_loss)
+        training_accuracy_list.append(training_accuracy)
+        validation_loss, validation_accuracy = test(validation=True)
+        print("Epoch {} finished, validation loss: {}, validation accuracy: {}"
+              .format(epoch_idx, validation_loss, validation_accuracy))
+        validation_loss_list.append(validation_loss)
         validation_accuracy_list.append(validation_accuracy)
     #** write loss_list to file
     f = open(model_name+'/training_loss','wb')
