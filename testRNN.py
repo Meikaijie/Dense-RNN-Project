@@ -46,8 +46,6 @@ if classifier_string == 'bireg_rnn_classification' or classifier_string == 'reg_
 elif classifier_string == 'bdrnn_classification' or classifier_string == 'drnn_classification':
   truncated_backprop_length = 2*real_dilations[-1]
 truncated_backprop_length = max(truncated_backprop_length,32)
-non_dilations = [1] * layers
-dilations = non_dilations
 num_classes = 61
 device = 'CPU'  # change to 'GPU' to run on GPU
 
@@ -67,7 +65,7 @@ with tf.device('/{}:0'.format(device)):
     labels_series = tf.unstack(batchY_placeholder, axis=1)
 
     logits_series = \
-        classifier(x_input, [state_size] * layers, dilations[0:layers],
+        classifier(x_input, [state_size] * layers, real_dilations,
                    truncated_backprop_length, num_classes,
                    num_features, cell_type, regularizers)
     predictions_series = [tf.argmax(logits, 1) for logits in logits_series]

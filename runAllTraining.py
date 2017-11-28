@@ -25,6 +25,8 @@ command_list.append('python testRNN.py 500 1 1 10 RNN drnn_classification')
 # baseline LSTM
 command_list.append('python testRNN.py 500 1 1 10 LSTM drnn_classification')
 
+print(command_list)
+
 # execute command list
 for command in command_list:
 	os.system(command)
