@@ -3,29 +3,53 @@ import os
 import tensorflow as tf
 import numpy as np
 from models._all import *
+import sys
+import pickle
 
 # when using reg_rnn_classification, layers should equal 1, also I think we should make truncated_backprop_length at least twice the size of the longest
 # dilation we are using or longest regularizer. Also we should have the option of only training losses on predictions where we have info for all skip connections.
-# To do this in the regularizedRNN file I just took the last half of the logits and labels and trained on those, but still predicted everything.
 
 # PARAMETERS
-num_epochs = 100
-total_series_length = 50000 * 100
-truncated_backprop_length = 64
-state_size = 128
-layers = 1
-batch_size = 1
-regularizers = [2, 4, 8]
+num_states = int(sys.argv[1])                # state_size
+num_layers = int(sys.argv[2])                # layers
+reg_steps = int(sys.argv[3])                 # length of regularizer array
+reg_step_size = int(sys.argv[4])             # multiplier for regularizer array (reg_step_size^i)
+dil_steps = int(sys.argv[5])                 # length of dilations array
+dil_step_size = int(sys.argv[6])             # multiplier for dilations array (dil_step_size^i)
+classifier_string = sys.argv[7]
+epochs = int(sys.argv[8])                    #num_epochs
+
+classifier_dict = {'bireg_rnn_classification':bireg_rnn_classification,
+                   'reg_rnn_classification':reg_rnn_classification,
+                   'bdrnn_classification':bdrnn_classification, 
+                   'drnn_classification':drnn_classification,
+                   'brnn_classification':bdrnn_classification,
+                   'rnn_classification':drnn_classification}
+
+num_epochs = epochs #100                #** make this user input
+state_size = num_states #128            #** make this user input
+layers = num_layers #1                  #** make this user input, but follow rules above
+if classifier_string != 'bdrnn_classification' or classifier_string != 'drnn_classification':
+  layers = 1
+regularizers = [reg_step_size**i for i in range(1,reg_steps+1)]  #** make this user input
 cell_type = 'RNN'
-classifier = bireg_rnn_classification
+classifier = classifier_dict[classifier_string]                  #** make this user input
 num_features = 123
-real_dilations = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+real_dilations = [dil_step_size**i for i in range(dil_steps)]    #** make this user input
+truncated_backprop_length = 1          #** make this twice the max dilation/regularizer
+if classifier_string == 'bireg_rnn_classification' or classifier_string == 'reg_rnn_classification':
+  truncated_backprop_length = 2*regularizers[-1]
+elif classifier_string == 'bdrnn_classification' or classifier_string == 'drnn_classification':
+  truncated_backprop_length = 2*real_dilations[-1]
+truncated_backprop_length = max(truncated_backprop_length,32)
 non_dilations = [1] * layers
 dilations = non_dilations
-num_examples = 4620
-num_batches = num_examples #//batch_size//truncated_backprop_length
 num_classes = 61
 device = 'CPU'  # change to 'GPU' to run on GPU
+
+model_name = '_'.join(sys.argv[1:])
+if not os.path.exists(model_name):
+  os.makedirs(directory)
 
 with tf.device('/{}:0'.format(device)):
     batchX_placeholder = \
@@ -148,3 +172,20 @@ with tf.Session() as sess:
         print("Epoch {} finished, validation accuracy: {}"
               .format(epoch_idx, validation_accuracy))
         validation_accuracy_list.append(validation_accuracy)
+    #** write loss_list to file
+    f = open(model_name+'/training_loss','wb')
+    pickle.dump(INSERT_TRAINING_LOSS_LIST,f)
+    f.close()
+    f = open(model_name+'/validation_loss','wb')
+    pickle.dump(INSERT_VALIDATION_LOSS_LIST, f)
+    f.close()
+    #** write accuracy to file
+    f = open(model_name+'/training_acc','wb')
+    pickle.dump(INSERT_TRAINING_ACCURACY_LIST,f)
+    f.close()
+    f = open(model_name+'/validation_acc','wb')
+    pickle.dump(INSERT_VALIDATION_ACCURACY_LIST, f)
+    f.close()
+    #** save model
+    
+    #** track training time
