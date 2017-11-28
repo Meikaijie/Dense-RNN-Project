@@ -5,6 +5,7 @@ import numpy as np
 from models._all import *
 import sys
 import pickle
+import time
 
 # when using reg_rnn_classification, layers should equal 1, also I think we should make truncated_backprop_length at least twice the size of the longest
 # dilation we are using or longest regularizer. Also we should have the option of only training losses on predictions where we have info for all skip connections.
@@ -16,8 +17,9 @@ reg_steps = int(sys.argv[3])                 # length of regularizer array
 reg_step_size = int(sys.argv[4])             # multiplier for regularizer array (reg_step_size^i)
 dil_steps = int(sys.argv[5])                 # length of dilations array
 dil_step_size = int(sys.argv[6])             # multiplier for dilations array (dil_step_size^i)
-classifier_string = sys.argv[7]
-epochs = int(sys.argv[8])                    #num_epochs
+epochs = int(sys.argv[7])                    #num_epochs
+classifier_string = sys.argv[8]
+
 
 classifier_dict = {'bireg_rnn_classification':bireg_rnn_classification,
                    'reg_rnn_classification':reg_rnn_classification,
@@ -49,7 +51,7 @@ device = 'CPU'  # change to 'GPU' to run on GPU
 
 model_name = '_'.join(sys.argv[1:])
 if not os.path.exists(model_name):
-  os.makedirs(directory)
+  os.makedirs(model_name)
 
 with tf.device('/{}:0'.format(device)):
     batchX_placeholder = \
@@ -80,8 +82,8 @@ with tf.device('/{}:0'.format(device)):
 def test(validation=True):
   print("Starting test")
 
-  all_test_feature_files = os.listdir('feature_files/TEST')
-  all_test_label_files = os.listdir('feature_labels/TEST')
+  all_test_feature_files = sorted(os.listdir('feature_files/TEST'))
+  all_test_label_files = sorted(os.listdir('feature_labels/TEST'))
   total_samples = len(all_test_feature_files)
   test_feature_files = \
     all_test_feature_files[:int(total_samples/2)] if validation \
@@ -129,8 +131,8 @@ def test(validation=True):
   return cumulative_loss, total_correct/float(total_phonemes)
 
 def train_epoch(train_model=True):
-  train_feature_files = os.listdir('feature_files/TRAIN')
-  train_label_files = os.listdir('feature_labels/TRAIN')
+  train_feature_files = sorted(os.listdir('feature_files/TRAIN'))
+  train_label_files = sorted(os.listdir('feature_labels/TRAIN'))
   total_samples = len(train_feature_files)
   total_correct = 0
   total_phonemes = 0
@@ -182,8 +184,11 @@ def train_epoch(train_model=True):
                 .format(sample_idx, _loss, accuracy))
   return cumulative_loss, total_correct/float(total_phonemes)
 
+start_time = time.clock()
+
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
+    model_saver = tf.train.Saver()
     training_loss_list = []
     training_accuracy_list = []
     validation_loss_list = []
@@ -204,18 +209,22 @@ with tf.Session() as sess:
         validation_accuracy_list.append(validation_accuracy)
     #** write loss_list to file
     f = open(model_name+'/training_loss','wb')
-    pickle.dump(INSERT_TRAINING_LOSS_LIST,f)
+    pickle.dump(training_loss_list, f)
     f.close()
     f = open(model_name+'/validation_loss','wb')
-    pickle.dump(INSERT_VALIDATION_LOSS_LIST, f)
+    pickle.dump(validation_loss_list, f)
     f.close()
     #** write accuracy to file
     f = open(model_name+'/training_acc','wb')
-    pickle.dump(INSERT_TRAINING_ACCURACY_LIST,f)
+    pickle.dump(training_accuracy_list, f)
     f.close()
     f = open(model_name+'/validation_acc','wb')
-    pickle.dump(INSERT_VALIDATION_ACCURACY_LIST, f)
+    pickle.dump(validation_accuracy_list, f)
     f.close()
     #** save model
-    
+    model_saver.save(sess, model_name+'/model.ckpt')
     #** track training time
+    total_time = time.clock()-start_time
+    f = open(model_name+'/training_time.txt','wb')
+    f.write(str(total_time))
+    f.close()
