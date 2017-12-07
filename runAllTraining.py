@@ -19,13 +19,13 @@ model_types = ['bdrnn_classification','bireg_rnn_classification','drnn_classific
 #					command = 'python testRNN.py ' + str(state) + ' ' + str(layer) + ' ' + str(step_size) + ' 10 ' + str(cell_type) + ' ' + str(model_type)
 #					command_list.append(command)
 
-command_list.append('python testRNN.py 500 5 3 50 LSTM bdrnn_classification')
-command_list.append('python testRNN.py 500 5 1 50 LSTM bdrnn_classification')
+command_list.append('python testRNN.py 500 4 3 50 LSTM bdrnn_classification')
+command_list.append('python testRNN.py 500 4 1 50 LSTM bdrnn_classification')
 command_list.append('python testRNN.py 250 1 1 10 LSTM drnn_classification')
-command_list.append('python testRNN.py 250 5 3 10 RNN reg_rnn_classification')
+command_list.append('python testRNN.py 250 4 3 10 RNN reg_rnn_classification')
 command_list.append('python testRNN.py 250 3 3 10 RNN reg_rnn_classification')
 command_list.append('python testRNN.py 250 3 3 10 LSTM reg_rnn_classification')
-command_list.append('python testRNN.py 900 5 3 50 LSTM bireg_rnn_classification')
+command_list.append('python testRNN.py 900 4 3 50 LSTM bireg_rnn_classification')
 
 print(command_list)
 

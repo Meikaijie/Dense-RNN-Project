@@ -47,7 +47,7 @@ elif classifier_string == 'bdrnn_classification' or classifier_string == 'drnn_c
   truncated_backprop_length = 2*real_dilations[-1]
 truncated_backprop_length = max(truncated_backprop_length,32)
 num_classes = 61
-device = 'CPU'  # change to 'GPU' to run on GPU
+device = 'GPU'  # change to 'GPU' to run on GPU
 
 model_name = '_'.join(sys.argv[1:])
 if not os.path.exists(model_name):
