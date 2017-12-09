@@ -16,7 +16,7 @@ print(np.array(allrnns)[np.argsort(allvalaccs)[-10:]])
 # Get different models into separate lists
 bdrnns = [f for f in os.listdir('.') if 'bdrnn' in f]
 drnns = [f for f in os.listdir('.') if '_drnn' in f]
-biregs = [f for f in os.listdir('.') if 'bireg' in f and '500' in f]
+biregs = [f for f in os.listdir('.') if 'bireg' in f]
 regs = [f for f in os.listdir('.') if '_reg' in f]
 
 model_lists = []
@@ -125,18 +125,18 @@ three_step_accs = [] #
 for model_list in model_lists:
 	for model in model_list:
 		model_params = model.split('_')
-		if model_params[:-2] == ['250','3','2','10','RNN'] or model_params[:-3] == ['250','3','1','10','RNN']:
+		if model_params[:-2] == ['250','3','2','10','RNN'] or model_params[:-3] == ['250','3','2','10','RNN']:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			three_layer_accs.append(val_acc)
 			states_250_accs.append(val_acc)
 			two_step_accs.append(val_acc)
 			RNN_cell_accs.append(val_acc)
-		elif model_params[:-2] == ['250','5','2','10','RNN'] or model_params[:-3] == ['250','5','1','10','RNN']:
+		elif model_params[:-2] == ['250','5','2','10','RNN'] or model_params[:-3] == ['250','5','2','10','RNN']:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			five_layer_accs.append(val_acc)
-		elif model_params[:-2] == ['500','3','2','10','RNN'] or model_params[:-3] == ['500','3','1','10','RNN']:
+		elif model_params[:-2] == ['500','3','2','10','RNN'] or model_params[:-3] == ['500','3','2','10','RNN']:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			states_500_accs.append(val_acc)
@@ -144,15 +144,18 @@ for model_list in model_lists:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			three_step_accs.append(val_acc)
-		elif model_params[:-2] == ['250','3','1','10','RNN'] or model_params[:-3] == ['250','3','2','10','RNN']:
+		elif model_params[:-2] == ['250','3','1','10','RNN'] or model_params[:-3] == ['250','3','1','10','RNN']:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			one_step_accs.append(val_acc)
-		elif model_params[:-2] == ['250','3','2','10','LSTM'] or model_params[:-3] == ['250','3','1','10','LSTM']:
+		elif model_params[:-2] == ['250','3','2','10','LSTM'] or model_params[:-3] == ['250','3','2','10','LSTM']:
 			with open(model+'/validation_acc', 'rb') as f:
 				val_acc = max(pickle.load(f))
 			LSTM_cell_accs.append(val_acc)
 	# print(five_layer_accs)
+
+print(states_250_accs)
+print(states_500_accs)
 
 # layer_tuples = zip(three_layer_accs,five_layer_accs)
 state_tuples = zip(states_250_accs,states_500_accs)
