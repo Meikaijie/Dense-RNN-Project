@@ -11,19 +11,21 @@ step_sizes = [1,2,3]
 cell_types = ['RNN','LSTM']
 model_types = ['bdrnn_classification','bireg_rnn_classification','drnn_classification','reg_rnn_classification']
 
-for layer in layers:
-	for state in states:
-		for step_size in step_sizes:
-			for cell_type in cell_types:
-				for model_type in model_types:
-					command = 'python testRNN.py ' + str(state) + ' ' + str(layer) + ' ' + str(step_size) + ' 10 ' + str(cell_type) + ' ' + str(model_type)
-					command_list.append(command)
+#for layer in layers:
+#	for state in states:
+#		for step_size in step_sizes:
+#			for cell_type in cell_types:
+#				for model_type in model_types:
+#					command = 'python testRNN.py ' + str(state) + ' ' + str(layer) + ' ' + str(step_size) + ' 10 ' + str(cell_type) + ' ' + str(model_type)
+#					command_list.append(command)
 
-# baseline RNN
-command_list.append('python testRNN.py 500 1 1 10 RNN drnn_classification')
-
-# baseline LSTM
-command_list.append('python testRNN.py 500 1 1 10 LSTM drnn_classification')
+command_list.append('python testRNN.py 500 4 3 50 LSTM bdrnn_classification')
+command_list.append('python testRNN.py 500 4 1 50 LSTM bdrnn_classification')
+command_list.append('python testRNN.py 250 1 1 10 LSTM drnn_classification')
+command_list.append('python testRNN.py 250 4 3 10 RNN reg_rnn_classification')
+command_list.append('python testRNN.py 250 3 3 10 RNN reg_rnn_classification')
+command_list.append('python testRNN.py 250 3 3 10 LSTM reg_rnn_classification')
+command_list.append('python testRNN.py 900 4 3 50 LSTM bireg_rnn_classification')
 
 print(command_list)
 
